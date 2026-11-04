@@ -29,7 +29,25 @@
 <div class="field"><label>Audience fit (0–20)</label><input name="a" type="number" min="0" max="20" value="0"></div><div class="field"><label>Expertise (0–20)</label><input name="b" type="number" min="0" max="20" value="0"></div><div class="field"><label>Buying potential (0–20)</label><input name="c" type="number" min="0" max="20" value="0"></div><div class="field"><label>Product opportunity (0–20)</label><input name="d" type="number" min="0" max="20" value="0"></div><div class="field"><label>Consistency (0–10)</label><input name="e" type="number" min="0" max="10" value="0"></div><div class="field"><label>Monetisation gap (0–10)</label><input name="f" type="number" min="0" max="10" value="0"></div>
 <div class="field full"><label>Product idea / research notes</label><textarea name="notes" rows="3"></textarea></div><div class="field full"><button class="btn primary" id="saveCreatorBtn">Save creator to cloud pipeline</button></div></form><div id="creatorMessage" class="message" role="status"></div></div>
 <div class="panel" style="margin-top:15px"><h2>Saved creators</h2><div id="table" class="empty">Loading your creators...</div></div></section>
-<section class="page" id="opportunities"><div class="eyebrow">PRODUCT STRATEGY</div><h1>Opportunities</h1><div class="panel empty">AI product recommendations will appear here after we connect the analysis engine.</div></section>
+<section class="page" id="opportunities">
+<div class="heading"><div><div class="eyebrow">CREATOR INTELLIGENCE</div><h1>Creator analysis</h1><p class="sub">Record evidence, identify audience problems and evaluate digital-product opportunities.</p></div></div>
+<div class="notice">This is the first structured analysis workspace. It stores your research in Supabase; AI-powered research and recommendations are not connected yet. Base conclusions on verifiable public evidence.</div>
+<div class="panel"><h2>New creator analysis</h2>
+<form id="analysisForm" class="form">
+<div class="field full"><label>Creator *</label><select name="creator_id" id="analysisCreator" required><option value="">Choose a saved creator</option></select></div>
+<div class="field full"><label>Audience problem or need *</label><textarea name="audience_problem" rows="3" required placeholder="What recurring problem, goal or question does this creator's audience appear to have?"></textarea></div>
+<div class="field"><label>Expertise evidence</label><textarea name="expertise_evidence" rows="3" placeholder="Specific experience, results, credentials or useful content observed."></textarea></div>
+<div class="field"><label>Engagement evidence</label><textarea name="engagement_evidence" rows="3" placeholder="Repeated questions, meaningful comments, requests or other evidence of demand."></textarea></div>
+<div class="field"><label>Recommended product</label><input name="recommended_product" placeholder="e.g. beginner meal-planning toolkit"></div>
+<div class="field"><label>Product format</label><select name="product_format"><option value="">Choose format</option><option>Ebook / guide</option><option>Templates / toolkit</option><option>Course / workshop</option><option>Paid community</option><option>Challenge / programme</option><option>Other</option></select></div>
+<div class="field"><label>Target buyer</label><input name="target_buyer" placeholder="Who would realistically pay for it?"></div>
+<div class="field"><label>Pricing considerations</label><textarea name="pricing_considerations" rows="3" placeholder="Comparable offers, buyer budget, scope and value. Avoid guessing a price without evidence."></textarea></div>
+<div class="field full"><label>Validation questions</label><textarea name="validation_questions" rows="3" placeholder="What should be asked or tested before creating the product?"></textarea></div>
+<div class="field"><label>Confidence level</label><select name="confidence"><option value="Low">Low — early hypothesis</option><option value="Medium">Medium — some supporting evidence</option><option value="High">High — repeated, credible evidence</option></select></div>
+<div class="field full"><button class="btn primary" id="saveAnalysisBtn">Save analysis</button></div>
+</form><div id="analysisMessage" class="message" role="status"></div></div>
+<div class="panel" style="margin-top:15px"><h2>Saved analyses</h2><div id="analysisList" class="empty">Select a creator and save your first analysis.</div></div>
+</section>
 <section class="page" id="partnerships"><div class="eyebrow">RELATIONSHIPS</div><h1>Partnerships</h1><div class="notice">Personalise outreach and use appropriate public business channels. Do not mass-message creators. Agree commercial terms in writing.</div><div class="panel empty">Your partnership pipeline will appear here in a later version.</div></section>
 <section class="page" id="products"><div class="eyebrow">PRODUCT STUDIO</div><h1>Products</h1><div class="panel empty">Manage creator-approved ebooks, templates, guides, toolkits and other digital products here.</div></section>
 </div></main></div>
@@ -45,13 +63,69 @@ function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function setAuthMode(mode){authMode=mode;const signup=mode==='signup';$('authTitle').textContent=signup?'Create your CreatorVault account':'Sign in to CreatorVault';$('authSubmit').textContent=signup?'Create account':'Sign in';$('signInTab').classList.toggle('active',!signup);$('signUpTab').classList.toggle('active',signup);$('authPassword').autocomplete=signup?'new-password':'current-password';$('authMessage').className='message';$('authMessage').textContent=''}
 $('signInTab').onclick=()=>setAuthMode('signin');$('signUpTab').onclick=()=>setAuthMode('signup');
 $('authForm').onsubmit=async e=>{e.preventDefault();const email=$('authEmail').value.trim(),password=$('authPassword').value;$('authSubmit').disabled=true;$('authSubmit').textContent='Please wait...';try{if(authMode==='signup'){const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:'https://ogooluwaisreal31-dot.github.io/Creatorvault/'}});if(error)throw error;if(data.session){await enterApp(data.session.user)}else{showMessage($('authMessage'),'Account created. Check your email for a confirmation link, then return here to sign in.','ok')}}else{const {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;await enterApp(data.user)}}catch(err){showMessage($('authMessage'),err.message||'Authentication failed. Please try again.','error')}finally{$('authSubmit').disabled=false;$('authSubmit').textContent=authMode==='signup'?'Create account':'Sign in'}};
-async function enterApp(user){currentUser=user;$('authScreen').classList.add('hidden');$('appScreen').classList.remove('hidden');$('userEmail').textContent=user.email||'';await migrateLocalCreators();await loadCreators()}
+async function enterApp(user){currentUser=user;$('authScreen').classList.add('hidden');$('appScreen').classList.remove('hidden');$('userEmail').textContent=user.email||'';await migrateLocalCreators();await loadCreators();await loadAnalysisCreatorOptions()}
 async function migrateLocalCreators(){const marker='creatorvault_migrated_'+currentUser.id;if(localStorage.getItem(marker))return;let old=[];try{old=JSON.parse(localStorage.getItem('creatorvault_creators')||'[]')}catch(e){old=[]}if(!Array.isArray(old)||!old.length)return;const rows=old.map(x=>({user_id:currentUser.id,name:String(x.name||'Imported creator'),niche:String(x.niche||'Unspecified'),country:x.country||null,platform:x.platform||'Other',profile_url:x.url||null,business_email:x.email||null,monetisation_status:x.monetisation||'Unclear',audience_fit:0,expertise:0,buying_potential:0,product_opportunity:0,consistency:0,monetisation_gap:0,total_score:Number(x.score)||0,priority:x.priority||(Number(x.score)>=70?'High':Number(x.score)>=55?'Review':'Low'),product_notes:x.notes||null}));const {error}=await db.from('creators').insert(rows);if(error){showMessage($('creatorMessage'),'Your previous browser-only records could not be imported yet: '+error.message,'error');return}localStorage.setItem(marker,'1');showMessage($('creatorMessage'),rows.length+' existing creator record(s) imported into your cloud account.','ok')}
 async function loadCreators(){ $('table').textContent='Loading your creators...';const {data,error}=await db.from('creators').select('*').order('created_at',{ascending:false});if(error){$('table').textContent='Could not load creators: '+error.message;return}creators=(data||[]).map(r=>({id:r.id,name:r.name,niche:r.niche,country:r.country,platform:r.platform,url:r.profile_url,email:r.business_email,monetisation:r.monetisation_status,score:r.total_score||0,priority:r.priority||'Low',notes:r.product_notes}));draw() }
 function draw(){ $('count').textContent=creators.length;$('high').textContent=creators.filter(x=>x.score>=70).length;const rows=creators.map(x=>`<tr><td><b>${esc(x.name)}</b><br>${esc(x.platform)}</td><td>${esc(x.niche)}</td><td>${esc(x.country||'—')}</td><td class="score">${Number(x.score)||0}/100</td><td><span class="pill">${esc(x.priority)}</span></td><td>${esc(x.monetisation)}</td></tr>`).join('');$('table').innerHTML=creators.length?`<div class="tablewrap"><table><tr><th>Creator</th><th>Niche</th><th>Country</th><th>Score</th><th>Priority</th><th>Monetisation</th></tr>${rows}</table></div>`:'No creators added yet.';$('recent').innerHTML=creators.length?`<div class="tablewrap"><table><tr><th>Creator</th><th>Niche</th><th>Score</th></tr>${creators.slice(0,5).map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.niche)}</td><td class="score">${Number(x.score)||0}</td></tr>`).join('')}</table></div>`:'Your pipeline is ready. Add your first creator.' }
-function go(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));$('crumb').textContent=({dashboard:'Dashboard',discover:'Discover creators',opportunities:'Opportunities',partnerships:'Partnerships',products:'Products'})[id];window.scrollTo(0,0)}
+function go(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));$('crumb').textContent=({dashboard:'Dashboard',discover:'Discover creators',opportunities:'Creator analysis',partnerships:'Partnerships',products:'Products'})[id];if(id==='opportunities'&&currentUser){loadAnalysisCreatorOptions();loadAnalyses()}window.scrollTo(0,0)}
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.page));
 $('creatorForm').onsubmit=async e=>{e.preventDefault();if(!currentUser){showMessage($('creatorMessage'),'Please sign in again.','error');return}const f=new FormData(e.target);const vals=['a','b','c','d','e','f'].map(k=>Number(f.get(k)||0));const score=vals.reduce((s,n)=>s+n,0);const record={user_id:currentUser.id,name:f.get('name').trim(),niche:f.get('niche').trim(),country:f.get('country').trim()||null,platform:f.get('platform'),profile_url:f.get('url').trim()||null,business_email:f.get('email').trim()||null,monetisation_status:f.get('monetisation'),audience_fit:vals[0],expertise:vals[1],buying_potential:vals[2],product_opportunity:vals[3],consistency:vals[4],monetisation_gap:vals[5],total_score:score,priority:score>=70?'High':score>=55?'Review':'Low',product_notes:f.get('notes').trim()||null};$('saveCreatorBtn').disabled=true;$('saveCreatorBtn').textContent='Saving...';try{const {error}=await db.from('creators').insert(record);if(error)throw error;e.target.reset();showMessage($('creatorMessage'),'Creator saved to your cloud pipeline.','ok');await loadCreators()}catch(err){showMessage($('creatorMessage'),err.message||'Could not save creator.','error')}finally{$('saveCreatorBtn').disabled=false;$('saveCreatorBtn').textContent='Save creator to cloud pipeline'}};
+
+async function loadAnalysisCreatorOptions(){
+  const select=$('analysisCreator');
+  const previous=select.value;
+  select.innerHTML='<option value="">Choose a saved creator</option>'+creators.map(c=>`<option value="${esc(c.id)}">${esc(c.name)} — ${esc(c.niche)}</option>`).join('');
+  if(previous&&creators.some(c=>c.id===previous))select.value=previous;
+}
+async function loadAnalyses(){
+  $('analysisList').textContent='Loading saved analyses...';
+  const {data,error}=await db.from('creator_analyses').select('*').order('created_at',{ascending:false});
+  if(error){$('analysisList').textContent='Could not load analyses: '+error.message;return}
+  if(!data||!data.length){$('analysisList').textContent='No analyses saved yet.';return}
+  $('analysisList').innerHTML=data.map(a=>{
+    const creator=creators.find(c=>c.id===a.creator_id);
+    return `<article style="border:1px solid var(--line);border-radius:9px;padding:14px;margin:10px 0">
+      <b>${esc(creator?.name||'Creator')}</b> <span class="pill">${esc(a.confidence||'Unrated')} confidence</span>
+      <p><b>Audience need:</b> ${esc(a.audience_problem||'—')}</p>
+      <p><b>Product idea:</b> ${esc(a.recommended_product||'Not specified')} ${a.product_format?'· '+esc(a.product_format):''}</p>
+      <p><b>Target buyer:</b> ${esc(a.target_buyer||'Not specified')}</p>
+      <details><summary>View full research notes</summary>
+        <p><b>Expertise evidence:</b> ${esc(a.expertise_evidence||'—')}</p>
+        <p><b>Engagement evidence:</b> ${esc(a.engagement_evidence||'—')}</p>
+        <p><b>Pricing considerations:</b> ${esc(a.pricing_considerations||'—')}</p>
+        <p><b>Validation questions:</b> ${esc(a.validation_questions||'—')}</p>
+      </details>
+    </article>`
+  }).join('');
+}
+$('analysisForm').onsubmit=async e=>{
+  e.preventDefault();
+  if(!currentUser){showMessage($('analysisMessage'),'Please sign in again.','error');return}
+  const f=new FormData(e.target);
+  const record={
+    user_id:currentUser.id,
+    creator_id:f.get('creator_id'),
+    audience_problem:String(f.get('audience_problem')||'').trim(),
+    expertise_evidence:String(f.get('expertise_evidence')||'').trim()||null,
+    engagement_evidence:String(f.get('engagement_evidence')||'').trim()||null,
+    recommended_product:String(f.get('recommended_product')||'').trim()||null,
+    product_format:String(f.get('product_format')||'').trim()||null,
+    target_buyer:String(f.get('target_buyer')||'').trim()||null,
+    pricing_considerations:String(f.get('pricing_considerations')||'').trim()||null,
+    validation_questions:String(f.get('validation_questions')||'').trim()||null,
+    confidence:f.get('confidence')
+  };
+  $('saveAnalysisBtn').disabled=true;$('saveAnalysisBtn').textContent='Saving...';
+  try{
+    const {error}=await db.from('creator_analyses').insert(record);
+    if(error)throw error;
+    e.target.reset();
+    showMessage($('analysisMessage'),'Analysis saved to your private CreatorVault workspace.','ok');
+    await loadAnalyses();
+  }catch(err){showMessage($('analysisMessage'),err.message||'Could not save analysis.','error')}
+  finally{$('saveAnalysisBtn').disabled=false;$('saveAnalysisBtn').textContent='Save analysis'}
+};
+
 $('signOutBtn').onclick=async()=>{await db.auth.signOut();currentUser=null;creators=[];$('appScreen').classList.add('hidden');$('authScreen').classList.remove('hidden');setAuthMode('signin')};
 db.auth.onAuthStateChange((event,session)=>{if(session?.user&&!currentUser){enterApp(session.user)}else if(!session?.user&&currentUser){currentUser=null;$('appScreen').classList.add('hidden');$('authScreen').classList.remove('hidden')}});
 (async()=>{const {data:{session}}=await db.auth.getSession();if(session?.user)await enterApp(session.user)})();
