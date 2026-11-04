@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101827"><title>CreatorVault</title>
+<style>
+:root{--bg:#f4f6fa;--ink:#182235;--muted:#748096;--line:#e8ecf2;--nav:#101827;--accent:#7868f6;--soft:#eeeaff;--danger:#b42318;--success:#16865c}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px system-ui,-apple-system,Segoe UI,sans-serif}.hidden{display:none!important}.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}.auth-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:25px;width:min(100%,430px);box-shadow:0 12px 40px #10182712}.auth-brand{display:flex;align-items:center;gap:10px;margin-bottom:20px}.logo{background:linear-gradient(135deg,#9c8cff,#6250e8);width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:white;font-weight:900}.auth-brand b{display:block}.auth-brand small{font-size:10px;color:var(--muted)}h1{font-size:25px;margin:8px 0}.sub{color:var(--muted);margin:0 0 20px}.auth-tabs{display:flex;gap:8px;margin-bottom:16px}.auth-tabs button{flex:1;background:#f4f6fa;border:0;border-radius:8px;padding:10px;font-weight:700}.auth-tabs button.active{background:var(--soft);color:#6251d5}.field{margin-bottom:12px}.field label{display:block;font-weight:700;font-size:11px;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:8px;background:white;font:inherit}.btn{border:0;border-radius:8px;padding:11px 14px;font-weight:700;cursor:pointer}.primary{background:var(--accent);color:white}.wide{width:100%}.message{font-size:12px;margin:12px 0;padding:10px;border-radius:8px;display:none}.message.show{display:block}.message.error{background:#fff0ef;color:var(--danger)}.message.ok{background:#ecfdf3;color:#067647}.app{display:flex;min-height:100vh}.side{width:225px;background:var(--nav);color:#d9e0ec;padding:22px 14px;flex-shrink:0}.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 28px}.brand b{display:block;color:white}.brand small{font-size:10px;color:#8e9bb1}.nav button{display:block;width:100%;text-align:left;border:0;background:none;color:#aeb9ca;padding:12px;border-radius:8px;margin:3px 0;cursor:pointer}.nav button.active,.nav button:hover{background:#222d40;color:white}.main{flex:1;min-width:0}.top{min-height:65px;background:white;border-bottom:1px solid var(--line);padding:0 30px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:700}.top small{color:var(--muted);font-weight:400}.top-right{display:flex;align-items:center;gap:12px}.top-right button{background:#f4f6fa;color:var(--ink)}.content{max-width:1150px;margin:auto;padding:30px}.page{display:none}.page.active{display:block}.eyebrow{font-size:10px;letter-spacing:1.2px;color:var(--accent);font-weight:800}.heading{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.heading h1{font-size:27px;margin:5px 0}.sub{color:var(--muted);margin:0}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px}.card,.panel{background:white;border:1px solid var(--line);border-radius:12px;padding:18px}.label{font-size:12px;color:var(--muted)}.metric{font-size:27px;font-weight:800;margin-top:10px}.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:15px}.panel h2{font-size:15px;margin:0 0 15px}.empty{border:1px dashed #d8deea;border-radius:9px;padding:25px;text-align:center;color:var(--muted)}.empty b{display:block;color:var(--ink);margin:6px}.empty p{font-size:12px}.notice{background:#f4f1ff;border:1px solid #e7e1ff;color:#5d51a6;border-radius:9px;padding:12px;margin-bottom:15px;font-size:12px}.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form .field{margin:0}.full{grid-column:1/-1}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:580px}th,td{text-align:left;padding:11px;border-bottom:1px solid var(--line);font-size:12px}th{color:var(--muted);font-size:10px;text-transform:uppercase}.score{font-weight:800;color:var(--success)}.pill{background:var(--soft);color:#6251d5;padding:4px 8px;border-radius:20px;font-size:10px}.foot{font-size:11px;color:var(--muted);margin-top:16px}
+@media(max-width:800px){.cards{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}}@media(max-width:600px){.app{display:block}.side{width:100%;padding:10px}.brand{padding:0 4px 8px}.nav{display:flex;overflow:auto;gap:4px}.nav button{white-space:nowrap;width:auto;padding:9px;font-size:11px}.top{min-height:52px;padding:8px 13px;font-size:13px}.top-right small{display:none}.content{padding:20px 13px}.heading{display:block}.heading .btn{margin-top:12px}.heading h1{font-size:23px}.card,.panel{padding:14px}.form{grid-template-columns:1fr}.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<div id="authScreen" class="auth-wrap"><div class="auth-card">
+<div class="auth-brand"><div class="logo">C</div><div><b>CreatorVault</b><small>CREATOR PARTNERSHIP OS</small></div></div>
+<div class="eyebrow">PRIVATE WORKSPACE</div><h1 id="authTitle">Sign in to CreatorVault</h1><p class="sub">Your creator pipeline is stored securely in your account.</p>
+<div class="auth-tabs"><button type="button" id="signInTab" class="active">Sign in</button><button type="button" id="signUpTab">Create account</button></div>
+<form id="authForm"><div class="field"><label>Email address</label><input id="authEmail" type="email" autocomplete="email" required></div><div class="field"><label>Password</label><input id="authPassword" type="password" minlength="8" autocomplete="current-password" required></div><button class="btn primary wide" id="authSubmit">Sign in</button></form>
+<div id="authMessage" class="message" role="status"></div><p class="foot">Use an email address you can access. If email confirmation is enabled, confirm your address before signing in.</p>
+</div></div>
+<div id="appScreen" class="app hidden">
+<aside class="side"><div class="brand"><div class="logo">C</div><div><b>CreatorVault</b><small>CREATOR PARTNERSHIP OS</small></div></div><nav class="nav"><button class="active" data-page="dashboard">▦ &nbsp; Dashboard</button><button data-page="discover">⌕ &nbsp; Discover creators</button><button data-page="opportunities">✧ &nbsp; Opportunities</button><button data-page="partnerships">♧ &nbsp; Partnerships</button><button data-page="products">▤ &nbsp; Products</button></nav></aside>
+<main class="main"><header class="top"><span id="crumb">Dashboard</span><div class="top-right"><small id="userEmail"></small><button class="btn" id="signOutBtn">Sign out</button></div></header><div class="content">
+<section class="page active" id="dashboard"><div class="heading"><div><div class="eyebrow">OVERVIEW</div><h1>Your creator business, in one place.</h1><p class="sub">Discover talent, find product opportunities and build partnerships.</p></div><button class="btn primary" onclick="go('discover')">＋ Add a creator</button></div>
+<div class="cards"><div class="card"><div class="label">Creators tracked</div><div class="metric" id="count">0</div></div><div class="card"><div class="label">High-potential leads</div><div class="metric" id="high">0</div></div><div class="card"><div class="label">Active partnerships</div><div class="metric">0</div></div><div class="card"><div class="label">Products in progress</div><div class="metric">0</div></div></div>
+<div class="layout"><div class="panel"><h2>Creator pipeline</h2><div id="recent" class="empty">Your pipeline is ready.<p>Add your first creator to begin.</p><button class="btn" onclick="go('discover')">Add first creator</button></div></div><div class="panel"><h2>Getting started</h2><p>1. Find a promising creator</p><p>2. Score their opportunity</p><p>3. Identify a product their audience needs</p><p>4. Agree partnership terms before production</p><hr><b>Proposed partnership model: 50 / 50</b><p class="foot">Define expenses, refunds and distributable revenue in writing.</p></div></div><p class="foot">Creator records are saved to your private Supabase account. Discovery, AI and outreach automation are not connected yet.</p></section>
+<section class="page" id="discover"><div class="heading"><div><div class="eyebrow">RESEARCH</div><h1>Creator discovery</h1><p class="sub">Build a pipeline of creators with promising product opportunities.</p></div></div><div class="notice">Add creators found through public profiles and business contact pages. Records are saved to your account; this app does not scrape platforms or send messages.</div>
+<div class="panel"><h2>Add a creator</h2><form id="creatorForm" class="form">
+<div class="field"><label>Creator / brand name *</label><input name="name" required></div><div class="field"><label>Niche *</label><input name="niche" required placeholder="e.g. fitness, design"></div>
+<div class="field"><label>Country</label><input name="country"></div><div class="field"><label>Main platform</label><select name="platform"><option>Instagram</option><option>YouTube</option><option>TikTok</option><option>LinkedIn</option><option>Website / Blog</option><option>Other</option></select></div>
+<div class="field full"><label>Profile URL</label><input name="url" type="url" placeholder="https://..."></div><div class="field"><label>Public business email</label><input name="email" type="email"></div><div class="field"><label>Monetisation status</label><select name="monetisation"><option>No product</option><option>Has products</option><option>Unclear</option></select></div>
+<div class="field"><label>Audience fit (0–20)</label><input name="a" type="number" min="0" max="20" value="0"></div><div class="field"><label>Expertise (0–20)</label><input name="b" type="number" min="0" max="20" value="0"></div><div class="field"><label>Buying potential (0–20)</label><input name="c" type="number" min="0" max="20" value="0"></div><div class="field"><label>Product opportunity (0–20)</label><input name="d" type="number" min="0" max="20" value="0"></div><div class="field"><label>Consistency (0–10)</label><input name="e" type="number" min="0" max="10" value="0"></div><div class="field"><label>Monetisation gap (0–10)</label><input name="f" type="number" min="0" max="10" value="0"></div>
+<div class="field full"><label>Product idea / research notes</label><textarea name="notes" rows="3"></textarea></div><div class="field full"><button class="btn primary" id="saveCreatorBtn">Save creator to cloud pipeline</button></div></form><div id="creatorMessage" class="message" role="status"></div></div>
+<div class="panel" style="margin-top:15px"><h2>Saved creators</h2><div id="table" class="empty">Loading your creators...</div></div></section>
+<section class="page" id="opportunities">
+<div class="heading"><div><div class="eyebrow">CREATOR INTELLIGENCE</div><h1>Creator analysis</h1><p class="sub">Record evidence, identify audience problems and evaluate digital-product opportunities.</p></div></div>
+<div class="notice">This is the first structured analysis workspace. It stores your research in Supabase; AI-powered research and recommendations are not connected yet. Base conclusions on verifiable public evidence.</div>
+<div class="panel"><h2>New creator analysis</h2>
+<form id="analysisForm" class="form">
+<div class="field full"><label>Creator *</label><select name="creator_id" id="analysisCreator" required><option value="">Choose a saved creator</option></select></div>
+<div class="field full"><label>Audience problem or need *</label><textarea name="audience_problem" rows="3" required placeholder="What recurring problem, goal or question does this creator's audience appear to have?"></textarea></div>
+<div class="field"><label>Expertise evidence</label><textarea name="expertise_evidence" rows="3" placeholder="Specific experience, results, credentials or useful content observed."></textarea></div>
+<div class="field"><label>Engagement evidence</label><textarea name="engagement_evidence" rows="3" placeholder="Repeated questions, meaningful comments, requests or other evidence of demand."></textarea></div>
+<div class="field"><label>Recommended product</label><input name="recommended_product" placeholder="e.g. beginner meal-planning toolkit"></div>
+<div class="field"><label>Product format</label><select name="product_format"><option value="">Choose format</option><option>Ebook / guide</option><option>Templates / toolkit</option><option>Course / workshop</option><option>Paid community</option><option>Challenge / programme</option><option>Other</option></select></div>
+<div class="field"><label>Target buyer</label><input name="target_buyer" placeholder="Who would realistically pay for it?"></div>
+<div class="field"><label>Pricing considerations</label><textarea name="pricing_considerations" rows="3" placeholder="Comparable offers, buyer budget, scope and value. Avoid guessing a price without evidence."></textarea></div>
+<div class="field full"><label>Validation questions</label><textarea name="validation_questions" rows="3" placeholder="What should be asked or tested before creating the product?"></textarea></div>
+<div class="field"><label>Confidence level</label><select name="confidence"><option value="Low">Low — early hypothesis</option><option value="Medium">Medium — some supporting evidence</option><option value="High">High — repeated, credible evidence</option></select></div>
+<div class="field full"><button class="btn primary" id="saveAnalysisBtn">Save analysis</button></div>
+</form><div id="analysisMessage" class="message" role="status"></div></div>
+<div class="panel" style="margin-top:15px"><h2>Saved analyses</h2><div id="analysisList" class="empty">Select a creator and save your first analysis.</div></div>
+</section>
+<section class="page" id="partnerships"><div class="eyebrow">RELATIONSHIPS</div><h1>Partnerships</h1><div class="notice">Personalise outreach and use appropriate public business channels. Do not mass-message creators. Agree commercial terms in writing.</div><div class="panel empty">Your partnership pipeline will appear here in a later version.</div></section>
+<section class="page" id="products"><div class="eyebrow">PRODUCT STUDIO</div><h1>Products</h1><div class="panel empty">Manage creator-approved ebooks, templates, guides, toolkits and other digital products here.</div></section>
+</div></main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://rwwayydgxoehchmyyxvm.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_eJ1wP5lEBIna7C03R5XwmA_KGRZVdqn';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let currentUser=null,creators=[];let authMode='signin';
+const $=id=>document.getElementById(id);
+function showMessage(el,msg,type){el.textContent=msg;el.className='message show '+type}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function setAuthMode(mode){authMode=mode;const signup=mode==='signup';$('authTitle').textContent=signup?'Create your CreatorVault account':'Sign in to CreatorVault';$('authSubmit').textContent=signup?'Create account':'Sign in';$('signInTab').classList.toggle('active',!signup);$('signUpTab').classList.toggle('active',signup);$('authPassword').autocomplete=signup?'new-password':'current-password';$('authMessage').className='message';$('authMessage').textContent=''}
+$('signInTab').onclick=()=>setAuthMode('signin');$('signUpTab').onclick=()=>setAuthMode('signup');
+$('authForm').onsubmit=async e=>{e.preventDefault();const email=$('authEmail').value.trim(),password=$('authPassword').value;$('authSubmit').disabled=true;$('authSubmit').textContent='Please wait...';try{if(authMode==='signup'){const {data,error}=await db.auth.signUp({email,password,options:{emailRedirectTo:'https://ogooluwaisreal31-dot.github.io/Creatorvault/'}});if(error)throw error;if(data.session){await enterApp(data.session.user)}else{showMessage($('authMessage'),'Account created. Check your email for a confirmation link, then return here to sign in.','ok')}}else{const {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;await enterApp(data.user)}}catch(err){showMessage($('authMessage'),err.message||'Authentication failed. Please try again.','error')}finally{$('authSubmit').disabled=false;$('authSubmit').textContent=authMode==='signup'?'Create account':'Sign in'}};
+async function enterApp(user){currentUser=user;$('authScreen').classList.add('hidden');$('appScreen').classList.remove('hidden');$('userEmail').textContent=user.email||'';await migrateLocalCreators();await loadCreators();await loadAnalysisCreatorOptions()}
+async function migrateLocalCreators(){const marker='creatorvault_migrated_'+currentUser.id;if(localStorage.getItem(marker))return;let old=[];try{old=JSON.parse(localStorage.getItem('creatorvault_creators')||'[]')}catch(e){old=[]}if(!Array.isArray(old)||!old.length)return;const rows=old.map(x=>({user_id:currentUser.id,name:String(x.name||'Imported creator'),niche:String(x.niche||'Unspecified'),country:x.country||null,platform:x.platform||'Other',profile_url:x.url||null,business_email:x.email||null,monetisation_status:x.monetisation||'Unclear',audience_fit:0,expertise:0,buying_potential:0,product_opportunity:0,consistency:0,monetisation_gap:0,total_score:Number(x.score)||0,priority:x.priority||(Number(x.score)>=70?'High':Number(x.score)>=55?'Review':'Low'),product_notes:x.notes||null}));const {error}=await db.from('creators').insert(rows);if(error){showMessage($('creatorMessage'),'Your previous browser-only records could not be imported yet: '+error.message,'error');return}localStorage.setItem(marker,'1');showMessage($('creatorMessage'),rows.length+' existing creator record(s) imported into your cloud account.','ok')}
+async function loadCreators(){ $('table').textContent='Loading your creators...';const {data,error}=await db.from('creators').select('*').order('created_at',{ascending:false});if(error){$('table').textContent='Could not load creators: '+error.message;return}creators=(data||[]).map(r=>({id:r.id,name:r.name,niche:r.niche,country:r.country,platform:r.platform,url:r.profile_url,email:r.business_email,monetisation:r.monetisation_status,score:r.total_score||0,priority:r.priority||'Low',notes:r.product_notes}));draw() }
+function draw(){ $('count').textContent=creators.length;$('high').textContent=creators.filter(x=>x.score>=70).length;const rows=creators.map(x=>`<tr><td><b>${esc(x.name)}</b><br>${esc(x.platform)}</td><td>${esc(x.niche)}</td><td>${esc(x.country||'—')}</td><td class="score">${Number(x.score)||0}/100</td><td><span class="pill">${esc(x.priority)}</span></td><td>${esc(x.monetisation)}</td></tr>`).join('');$('table').innerHTML=creators.length?`<div class="tablewrap"><table><tr><th>Creator</th><th>Niche</th><th>Country</th><th>Score</th><th>Priority</th><th>Monetisation</th></tr>${rows}</table></div>`:'No creators added yet.';$('recent').innerHTML=creators.length?`<div class="tablewrap"><table><tr><th>Creator</th><th>Niche</th><th>Score</th></tr>${creators.slice(0,5).map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.niche)}</td><td class="score">${Number(x.score)||0}</td></tr>`).join('')}</table></div>`:'Your pipeline is ready. Add your first creator.' }
+function go(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));$('crumb').textContent=({dashboard:'Dashboard',discover:'Discover creators',opportunities:'Creator analysis',partnerships:'Partnerships',products:'Products'})[id];if(id==='opportunities'&&currentUser){loadAnalysisCreatorOptions();loadAnalyses()}window.scrollTo(0,0)}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.page));
+$('creatorForm').onsubmit=async e=>{e.preventDefault();if(!currentUser){showMessage($('creatorMessage'),'Please sign in again.','error');return}const f=new FormData(e.target);const vals=['a','b','c','d','e','f'].map(k=>Number(f.get(k)||0));const score=vals.reduce((s,n)=>s+n,0);const record={user_id:currentUser.id,name:f.get('name').trim(),niche:f.get('niche').trim(),country:f.get('country').trim()||null,platform:f.get('platform'),profile_url:f.get('url').trim()||null,business_email:f.get('email').trim()||null,monetisation_status:f.get('monetisation'),audience_fit:vals[0],expertise:vals[1],buying_potential:vals[2],product_opportunity:vals[3],consistency:vals[4],monetisation_gap:vals[5],total_score:score,priority:score>=70?'High':score>=55?'Review':'Low',product_notes:f.get('notes').trim()||null};$('saveCreatorBtn').disabled=true;$('saveCreatorBtn').textContent='Saving...';try{const {error}=await db.from('creators').insert(record);if(error)throw error;e.target.reset();showMessage($('creatorMessage'),'Creator saved to your cloud pipeline.','ok');await loadCreators()}catch(err){showMessage($('creatorMessage'),err.message||'Could not save creator.','error')}finally{$('saveCreatorBtn').disabled=false;$('saveCreatorBtn').textContent='Save creator to cloud pipeline'}};
+
+async function loadAnalysisCreatorOptions(){
+  const select=$('analysisCreator');
+  const previous=select.value;
+  select.innerHTML='<option value="">Choose a saved creator</option>'+creators.map(c=>`<option value="${esc(c.id)}">${esc(c.name)} — ${esc(c.niche)}</option>`).join('');
+  if(previous&&creators.some(c=>c.id===previous))select.value=previous;
+}
+async function loadAnalyses(){
+  $('analysisList').textContent='Loading saved analyses...';
+  const {data,error}=await db.from('creator_analyses').select('*').order('created_at',{ascending:false});
+  if(error){$('analysisList').textContent='Could not load analyses: '+error.message;return}
+  if(!data||!data.length){$('analysisList').textContent='No analyses saved yet.';return}
+  $('analysisList').innerHTML=data.map(a=>{
+    const creator=creators.find(c=>c.id===a.creator_id);
+    return `<article style="border:1px solid var(--line);border-radius:9px;padding:14px;margin:10px 0">
+      <b>${esc(creator?.name||'Creator')}</b> <span class="pill">${esc(a.confidence||'Unrated')} confidence</span>
+      <p><b>Audience need:</b> ${esc(a.audience_problem||'—')}</p>
+      <p><b>Product idea:</b> ${esc(a.recommended_product||'Not specified')} ${a.product_format?'· '+esc(a.product_format):''}</p>
+      <p><b>Target buyer:</b> ${esc(a.target_buyer||'Not specified')}</p>
+      <details><summary>View full research notes</summary>
+        <p><b>Expertise evidence:</b> ${esc(a.expertise_evidence||'—')}</p>
+        <p><b>Engagement evidence:</b> ${esc(a.engagement_evidence||'—')}</p>
+        <p><b>Pricing considerations:</b> ${esc(a.pricing_considerations||'—')}</p>
+        <p><b>Validation questions:</b> ${esc(a.validation_questions||'—')}</p>
+      </details>
+    </article>`
+  }).join('');
+}
+$('analysisForm').onsubmit=async e=>{
+  e.preventDefault();
+  if(!currentUser){showMessage($('analysisMessage'),'Please sign in again.','error');return}
+  const f=new FormData(e.target);
+  const record={
+    user_id:currentUser.id,
+    creator_id:f.get('creator_id'),
+    audience_problem:String(f.get('audience_problem')||'').trim(),
+    expertise_evidence:String(f.get('expertise_evidence')||'').trim()||null,
+    engagement_evidence:String(f.get('engagement_evidence')||'').trim()||null,
+    recommended_product:String(f.get('recommended_product')||'').trim()||null,
+    product_format:String(f.get('product_format')||'').trim()||null,
+    target_buyer:String(f.get('target_buyer')||'').trim()||null,
+    pricing_considerations:String(f.get('pricing_considerations')||'').trim()||null,
+    validation_questions:String(f.get('validation_questions')||'').trim()||null,
+    confidence:f.get('confidence')
+  };
+  $('saveAnalysisBtn').disabled=true;$('saveAnalysisBtn').textContent='Saving...';
+  try{
+    const {error}=await db.from('creator_analyses').insert(record);
+    if(error)throw error;
+    e.target.reset();
+    showMessage($('analysisMessage'),'Analysis saved to your private CreatorVault workspace.','ok');
+    await loadAnalyses();
+  }catch(err){showMessage($('analysisMessage'),err.message||'Could not save analysis.','error')}
+  finally{$('saveAnalysisBtn').disabled=false;$('saveAnalysisBtn').textContent='Save analysis'}
+};
+
+$('signOutBtn').onclick=async()=>{await db.auth.signOut();currentUser=null;creators=[];$('appScreen').classList.add('hidden');$('authScreen').classList.remove('hidden');setAuthMode('signin')};
+db.auth.onAuthStateChange((event,session)=>{if(session?.user&&!currentUser){enterApp(session.user)}else if(!session?.user&&currentUser){currentUser=null;$('appScreen').classList.add('hidden');$('authScreen').classList.remove('hidden')}});
+(async()=>{const {data:{session}}=await db.auth.getSession();if(session?.user)await enterApp(session.user)})();
+</script>
+</body></html>
