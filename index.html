@@ -31,10 +31,11 @@
 <div class="panel" style="margin-top:15px"><h2>Saved creators</h2><div id="table" class="empty">Loading your creators...</div></div></section>
 <section class="page" id="opportunities">
 <div class="heading"><div><div class="eyebrow">CREATOR INTELLIGENCE</div><h1>Creator analysis</h1><p class="sub">Record evidence, identify audience problems and evaluate digital-product opportunities.</p></div></div>
-<div class="notice">This is the first structured analysis workspace. It stores your research in Supabase; AI-powered research and recommendations are not connected yet. Base conclusions on verifiable public evidence.</div>
+<div class="notice">Generate an initial AI assessment from the creator details and research notes you have entered. The AI does not independently inspect social profiles or verify audience demand; check its hypotheses before making decisions.</div>
 <div class="panel"><h2>New creator analysis</h2>
 <form id="analysisForm" class="form">
 <div class="field full"><label>Creator *</label><select name="creator_id" id="analysisCreator" required><option value="">Choose a saved creator</option></select></div>
+<div class="field full"><button type="button" class="btn primary" id="runAIAnalysisBtn">✧ Generate AI analysis</button><p class="foot">Uses the saved creator profile and your notes. It does not browse or verify the creator's public profile.</p></div>
 <div class="field full"><label>Audience problem or need *</label><textarea name="audience_problem" rows="3" required placeholder="What recurring problem, goal or question does this creator's audience appear to have?"></textarea></div>
 <div class="field"><label>Expertise evidence</label><textarea name="expertise_evidence" rows="3" placeholder="Specific experience, results, credentials or useful content observed."></textarea></div>
 <div class="field"><label>Engagement evidence</label><textarea name="engagement_evidence" rows="3" placeholder="Repeated questions, meaningful comments, requests or other evidence of demand."></textarea></div>
@@ -77,6 +78,27 @@ async function loadAnalysisCreatorOptions(){
   select.innerHTML='<option value="">Choose a saved creator</option>'+creators.map(c=>`<option value="${esc(c.id)}">${esc(c.name)} — ${esc(c.niche)}</option>`).join('');
   if(previous&&creators.some(c=>c.id===previous))select.value=previous;
 }
+$('runAIAnalysisBtn').onclick=async()=>{
+  const creatorId=$('analysisCreator').value;
+  if(!creatorId){showMessage($('analysisMessage'),'Choose a saved creator first.','error');return}
+  const button=$('runAIAnalysisBtn');
+  button.disabled=true;button.textContent='Generating analysis...';
+  showMessage($('analysisMessage'),'The AI is evaluating the saved creator information. This may take a few seconds.','ok');
+  try{
+    const {data,error}=await db.functions.invoke('creator-intelligence',{body:{creator_id:creatorId}});
+    if(error){
+      let detail=error.message||'Function request failed.';
+      try{const body=await error.context.json();if(body?.error)detail=body.error}catch(e){}
+      throw new Error(detail);
+    }
+    if(!data?.success)throw new Error(data?.error||'The AI analysis did not complete.');
+    const reason=data.reasoning?(' AI reasoning: '+data.reasoning):'';
+    showMessage($('analysisMessage'),'AI analysis generated and saved successfully.'+reason,'ok');
+    await loadAnalyses();
+  }catch(err){showMessage($('analysisMessage'),err.message||'Could not generate AI analysis.','error')}
+  finally{button.disabled=false;button.textContent='✧ Generate AI analysis'}
+};
+
 async function loadAnalyses(){
   $('analysisList').textContent='Loading saved analyses...';
   const {data,error}=await db.from('creator_analyses').select('*').order('created_at',{ascending:false});
