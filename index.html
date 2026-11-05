@@ -85,7 +85,7 @@ $('runAIAnalysisBtn').onclick=async()=>{
   button.disabled=true;button.textContent='Generating analysis...';
   showMessage($('analysisMessage'),'The AI is evaluating the saved creator information. This may take a few seconds.','ok');
   try{
-    const {data,error}=await db.functions.invoke('creator-intelligence',{body:{creator_id:creatorId}});
+    const {data,error}=await db.functions.invoke('Creator_intelligence',{body:{creator_id:creatorId}});
     if(error){
       let detail=error.message||'Function request failed.';
       try{const body=await error.context.json();if(body?.error)detail=body.error}catch(e){}
