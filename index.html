@@ -28,6 +28,19 @@
 <div class="field full"><label>Profile URL</label><input name="url" type="url" placeholder="https://..."></div><div class="field"><label>Public business email</label><input name="email" type="email"></div><div class="field"><label>Monetisation status</label><select name="monetisation"><option>No product</option><option>Has products</option><option>Unclear</option></select></div>
 <div class="field"><label>Audience fit (0–20)</label><input name="a" type="number" min="0" max="20" value="0"></div><div class="field"><label>Expertise (0–20)</label><input name="b" type="number" min="0" max="20" value="0"></div><div class="field"><label>Buying potential (0–20)</label><input name="c" type="number" min="0" max="20" value="0"></div><div class="field"><label>Product opportunity (0–20)</label><input name="d" type="number" min="0" max="20" value="0"></div><div class="field"><label>Consistency (0–10)</label><input name="e" type="number" min="0" max="10" value="0"></div><div class="field"><label>Monetisation gap (0–10)</label><input name="f" type="number" min="0" max="10" value="0"></div>
 <div class="field full"><label>Product idea / research notes</label><textarea name="notes" rows="3"></textarea></div><div class="field full"><button class="btn primary" id="saveCreatorBtn">Save creator to cloud pipeline</button></div></form><div id="creatorMessage" class="message" role="status"></div></div>
+<div class="panel" style="margin-top:15px">
+  <h2>AI Creator Discovery</h2>
+  <p class="foot">Research public creator profiles and potential digital-product opportunities. Review the evidence before saving anyone.</p>
+  <form id="discoveryForm" class="form">
+    <div class="field"><label for="discoveryNiche">Niche or category *</label><input id="discoveryNiche" required placeholder="e.g. fitness, personal finance, beauty"></div>
+    <div class="field"><label for="discoveryCountry">Target country / market</label><input id="discoveryCountry" value="Any country"></div>
+    <div class="field"><label for="discoveryPlatform">Platform</label><select id="discoveryPlatform"><option>Any platform</option><option>Instagram</option><option>TikTok</option><option>YouTube</option><option>LinkedIn</option><option>Website / Blog</option></select></div>
+    <div class="field"><label for="discoveryBatch">Creators per batch</label><select id="discoveryBatch"><option value="10" selected>10 creators</option><option value="20">20 creators</option></select></div>
+    <div class="field full"><button class="btn primary" id="researchCreatorsBtn" type="submit">Research creators</button></div>
+  </form>
+  <div id="discoveryMessage" class="message" role="status"></div>
+  <div id="discoveryResults" style="margin-top:14px"></div>
+</div>
 <div class="panel" style="margin-top:15px"><h2>Saved creators</h2><div id="table" class="empty">Loading your creators...</div></div></section>
 <section class="page" id="opportunities">
 <div class="heading"><div><div class="eyebrow">CREATOR INTELLIGENCE</div><h1>Creator analysis</h1><p class="sub">Record evidence, identify audience problems and evaluate digital-product opportunities.</p></div></div>
@@ -71,6 +84,135 @@ function draw(){ $('count').textContent=creators.length;$('high').textContent=cr
 function go(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));$('crumb').textContent=({dashboard:'Dashboard',discover:'Discover creators',opportunities:'Creator analysis',partnerships:'Partnerships',products:'Products'})[id];if(id==='opportunities'&&currentUser){loadAnalysisCreatorOptions();loadAnalyses()}window.scrollTo(0,0)}
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>go(b.dataset.page));
 $('creatorForm').onsubmit=async e=>{e.preventDefault();if(!currentUser){showMessage($('creatorMessage'),'Please sign in again.','error');return}const f=new FormData(e.target);const vals=['a','b','c','d','e','f'].map(k=>Number(f.get(k)||0));const score=vals.reduce((s,n)=>s+n,0);const record={user_id:currentUser.id,name:f.get('name').trim(),niche:f.get('niche').trim(),country:f.get('country').trim()||null,platform:f.get('platform'),profile_url:f.get('url').trim()||null,business_email:f.get('email').trim()||null,monetisation_status:f.get('monetisation'),audience_fit:vals[0],expertise:vals[1],buying_potential:vals[2],product_opportunity:vals[3],consistency:vals[4],monetisation_gap:vals[5],total_score:score,priority:score>=70?'High':score>=55?'Review':'Low',product_notes:f.get('notes').trim()||null};$('saveCreatorBtn').disabled=true;$('saveCreatorBtn').textContent='Saving...';try{const {error}=await db.from('creators').insert(record);if(error)throw error;e.target.reset();showMessage($('creatorMessage'),'Creator saved to your cloud pipeline.','ok');await loadCreators()}catch(err){showMessage($('creatorMessage'),err.message||'Could not save creator.','error')}finally{$('saveCreatorBtn').disabled=false;$('saveCreatorBtn').textContent='Save creator to cloud pipeline'}};
+
+
+// AI Creator Discovery: research first, then let the user review and choose what to save.
+let discoveryResults=[];
+function safeHttpUrl(value){
+  try{const u=new URL(String(value||''));return (u.protocol==='https:'||u.protocol==='http:')?u.href:''}catch(e){return ''}
+}
+function renderDiscoveryResults(){
+  const host=$('discoveryResults');
+  if(!discoveryResults.length){host.innerHTML='';return}
+  const cards=discoveryResults.map((c,i)=>{
+    const name=esc(c.name||c.creator_name||'Unnamed creator');
+    const platform=esc(c.platform||'Platform unclear');
+    const username=esc(c.username||'');
+    const country=esc(c.country||'Not verified');
+    const niche=esc(c.niche||$('discoveryNiche').value.trim());
+    const followers=esc(c.followers??c.follower_count??'Not publicly confirmed');
+    const status=esc(c.monetisation_status||c.monetization_status||'Unclear');
+    const score=Math.max(0,Math.min(100,Number(c.score??c.total_score)||0));
+    const profile=safeHttpUrl(c.profile_url||c.url);
+    const evidence=esc(c.expertise_evidence||c.expertise||'Not provided');
+    const opportunity=esc(c.product_opportunity||c.product_idea||'Not provided');
+    const fit=esc(c.audience_fit||'Not provided');
+    const reason=esc(c.partnership_reason||c.reason||'Not provided');
+    const verification=esc(c.verification_status||'Not independently confirmed');
+    const sources=Array.isArray(c.source_urls)?c.source_urls:[];
+    const sourceLinks=sources.map(s=>{const u=safeHttpUrl(s);return u?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">Source</a>`:''}).filter(Boolean).join(' · ');
+    return `<article style="border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0">
+      <label style="display:flex;gap:8px;align-items:flex-start;font-weight:700">
+        <input type="checkbox" class="discoveryPick" data-index="${i}" style="margin-top:3px">
+        <span>${name}${username?' <span style="font-weight:400;color:var(--muted)">'+username+'</span>':''}</span>
+      </label>
+      <p class="foot">${platform} · ${country} · ${niche} · Followers: ${followers}</p>
+      <p><b>Opportunity score:</b> ${score}/100 &nbsp; <b>Monetisation:</b> ${status}</p>
+      <p><b>Expertise evidence:</b> ${evidence}</p>
+      <p><b>Product opportunity:</b> ${opportunity}</p>
+      <p><b>Audience fit:</b> ${fit}</p>
+      <p><b>Partnership fit:</b> ${reason}</p>
+      <p><b>Verification:</b> ${verification}</p>
+      <p>${profile?`<a href="${esc(profile)}" target="_blank" rel="noopener noreferrer">Open creator profile</a>`:'<span class="foot">No valid profile URL supplied</span>'}${sourceLinks?' · '+sourceLinks:''}</p>
+    </article>`
+  }).join('');
+  host.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><b>${discoveryResults.length} research result(s)</b><button type="button" class="btn primary" id="saveDiscoveryBtn">Save selected creators</button></div>${cards}`;
+  $('saveDiscoveryBtn').onclick=saveSelectedDiscoveryCreators;
+}
+$('discoveryForm').onsubmit=async e=>{
+  e.preventDefault();
+  const niche=$('discoveryNiche').value.trim();
+  if(!niche){showMessage($('discoveryMessage'),'Enter a niche or category first.','error');return}
+  const button=$('researchCreatorsBtn');
+  button.disabled=true;button.textContent='Researching...';
+  $('discoveryResults').innerHTML='';
+  discoveryResults=[];
+  showMessage($('discoveryMessage'),'Searching public sources for creators. Results will need your review.','ok');
+  try{
+    const {data,error}=await db.functions.invoke('Creator_discovery',{body:{
+      niche,
+      country:$('discoveryCountry').value.trim()||'Any country',
+      platform:$('discoveryPlatform').value,
+      batch_size:Number($('discoveryBatch').value)||10
+    }});
+    if(error){
+      let detail=error.message||'Creator discovery request failed.';
+      try{const body=await error.context.json();if(body?.error)detail=body.error}catch(e){}
+      throw new Error(detail);
+    }
+    if(!data?.success)throw new Error(data?.error||'The discovery engine did not return a successful result.');
+    if(!Array.isArray(data.creators))throw new Error('The discovery response did not contain a creator list.');
+    discoveryResults=data.creators;
+    if(!discoveryResults.length){showMessage($('discoveryMessage'),'The research completed but returned no usable creator records. Try a broader niche or another platform.','error');return}
+    renderDiscoveryResults();
+    const summary=data.research_summary?(' '+String(data.research_summary)):'';
+    showMessage($('discoveryMessage'),`Research completed: ${discoveryResults.length} creator(s) found. Nothing has been saved yet.${summary}`,'ok');
+  }catch(err){
+    showMessage($('discoveryMessage'),err.message||'Could not research creators.','error');
+  }finally{button.disabled=false;button.textContent='Research creators'}
+};
+async function saveSelectedDiscoveryCreators(){
+  const picks=[...document.querySelectorAll('.discoveryPick:checked')].map(x=>Number(x.dataset.index)).filter(i=>Number.isInteger(i)&&discoveryResults[i]);
+  if(!picks.length){showMessage($('discoveryMessage'),'Select at least one creator to save.','error');return}
+  if(!currentUser){showMessage($('discoveryMessage'),'Please sign in again.','error');return}
+  const rows=picks.map(i=>{
+    const c=discoveryResults[i];
+    const score=Math.max(0,Math.min(100,Number(c.score??c.total_score)||0));
+    const rawStatus=String(c.monetisation_status||c.monetization_status||'Unclear').toLowerCase();
+    const monetisation=rawStatus.includes('no product')||rawStatus.includes('not monet')?'No product':rawStatus.includes('has product')||rawStatus.includes('monetiz')?'Has products':'Unclear';
+    const sources=Array.isArray(c.source_urls)?c.source_urls.map(safeHttpUrl).filter(Boolean):[];
+    const notes=[
+      'AI DISCOVERY RESEARCH — review and independently verify before outreach.',
+      'Followers: '+String(c.followers??c.follower_count??'Not publicly confirmed'),
+      'Verification status: '+String(c.verification_status||'Not independently confirmed'),
+      'Expertise evidence: '+String(c.expertise_evidence||c.expertise||'Not provided'),
+      'Product opportunity: '+String(c.product_opportunity||c.product_idea||'Not provided'),
+      'Audience fit: '+String(c.audience_fit||'Not provided'),
+      'Partnership reason: '+String(c.partnership_reason||c.reason||'Not provided'),
+      'Research sources: '+(sources.join(' | ')||'No source URLs returned'),
+      'Discovery score: '+score+'/100 (AI-reported; component scores not independently assessed).'
+    ].join('\n');
+    return {
+      user_id:currentUser.id,
+      name:String(c.name||c.creator_name||'').trim()||'Unnamed creator',
+      niche:String(c.niche||$('discoveryNiche').value.trim()||'Unspecified'),
+      country:String(c.country||'').trim()||null,
+      platform:String(c.platform||$('discoveryPlatform').value||'Other'),
+      profile_url:safeHttpUrl(c.profile_url||c.url)||null,
+      business_email:null,
+      monetisation_status:monetisation,
+      audience_fit:0,expertise:0,buying_potential:0,product_opportunity:0,consistency:0,monetisation_gap:0,
+      total_score:score,
+      priority:score>=70?'High':score>=55?'Review':'Low',
+      product_notes:notes
+    };
+  });
+  const button=$('saveDiscoveryBtn');
+  if(button){button.disabled=true;button.textContent='Saving...'}
+  try{
+    const {error}=await db.from('creators').insert(rows);
+    if(error)throw error;
+    showMessage($('discoveryMessage'),`${rows.length} creator(s) saved to your cloud pipeline. Their AI scores are stored as provisional total scores; verify evidence before relying on them.`,'ok');
+    discoveryResults=discoveryResults.filter((c,i)=>!picks.includes(i));
+    renderDiscoveryResults();
+    await loadCreators();
+  }catch(err){
+    showMessage($('discoveryMessage'),err.message||'Could not save the selected creators.','error');
+  }finally{
+    const current=$('saveDiscoveryBtn');
+    if(current){current.disabled=false;current.textContent='Save selected creators'}
+  }
+}
 
 async function loadAnalysisCreatorOptions(){
   const select=$('analysisCreator');
