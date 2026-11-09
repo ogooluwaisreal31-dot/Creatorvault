@@ -150,9 +150,16 @@ $('discoveryForm').onsubmit=async e=>{
       try{const body=await error.context.json();if(body?.error)detail=body.error}catch(e){}
       throw new Error(detail);
     }
-    if(!data?.success)throw new Error(data?.error||'The discovery engine did not return a successful result.');
-    if(!Array.isArray(data.creators))throw new Error('The discovery response did not contain a creator list.');
-    discoveryResults=data.creators;
+    if(!data?.success){
+  console.log('CreatorVault diagnostics:', data?.diagnostics);
+  console.log('Full discovery response:', data);
+  throw new Error(
+    'Discovery failed at: ' +
+    (data?.diagnostics?.stage || data?.error || 'Unknown stage') +
+    '. Check browser console for details.'
+  );
+}
+if(!Array.isArray(data.creators))throw new Error('The discovery response did not contain a creator list.');
     if(!discoveryResults.length){showMessage($('discoveryMessage'),'The research completed but returned no usable creator records. Try a broader niche or another platform.','error');return}
     renderDiscoveryResults();
     const summary=data.research_summary?(' '+String(data.research_summary)):'';
