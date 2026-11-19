@@ -145,6 +145,7 @@ $('discoveryForm').onsubmit=async e=>{
       platform:$('discoveryPlatform').value,
       batch_size:Number($('discoveryBatch').value)||10
     }});
+    console.log("FULL CREATOR DISCOVERY RESPONSE:", data);
     if(error){
       let detail=error.message||'Creator discovery request failed.';
       try{const body=await error.context.json();if(body?.error)detail=body.error}catch(e){}
